@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import static robot.Constants.PERIOD;
 
 import com.ctre.phoenix6.SignalLogger;
+import dev.doglog.DogLog;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;

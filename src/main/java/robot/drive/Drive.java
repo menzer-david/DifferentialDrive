@@ -9,6 +9,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
+import dev.doglog.DogLog;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -87,7 +89,7 @@ public class Drive extends SubsystemBase {
   public void drive(double leftSpeed, double rightSpeed) {
     final double realLeftSpeed = leftSpeed * DriveConstants.MAX_SPEED;
     final double realRightSpeed = rightSpeed * DriveConstants.MAX_SPEED;
-
+    
     final double leftFeedforward = feedforward.calculate(realLeftSpeed);
     final double rightFeedforward = feedforward.calculate(realRightSpeed);
 
@@ -96,7 +98,9 @@ public class Drive extends SubsystemBase {
         rightPIDController.calculate(rightEncoder.getVelocity(), realRightSpeed);
     double leftVoltage = leftPID + leftFeedforward;
     double rightVoltage = rightPID + rightFeedforward;
-
+    DogLog.log("leftVoltage", leftVoltage);
+    DogLog.log("rightVoltage", rightVoltage);
+    driveSim.setInputs(leftVoltage, rightVoltage);
     leftLeader.setVoltage(leftVoltage);
     rightLeader.setVoltage(rightVoltage);
   }
@@ -116,6 +120,8 @@ public class Drive extends SubsystemBase {
   }
 
   public Command drive(DoubleSupplier vLeft, DoubleSupplier vRight) {
+    DogLog.log("leftSpeed", vLeft.getAsDouble());
+    DogLog.log("rightSpeed", vRight.getAsDouble());
     return run(() -> drive(vLeft.getAsDouble(), vRight.getAsDouble()));
   }
 
@@ -123,6 +129,7 @@ public class Drive extends SubsystemBase {
   public void simulationPeriodic() {
     // sim.update() tells the simulation how much time has passed
     driveSim.update(Constants.PERIOD.in(Seconds));
+    DogLog.log("Pose", pose());
     leftEncoder.setPosition(driveSim.getLeftPositionMeters());
     rightEncoder.setPosition(driveSim.getRightPositionMeters());
   }
