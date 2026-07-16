@@ -19,10 +19,17 @@ public final class Ports {
   }
 
   public static final class Drive {
-    public static final int RIGHT_LEADER = 2;
-    public static final int RIGHT_FOLLOWER = 3;
-    public static final int LEFT_LEADER = 4;
-    public static final int LEFT_FOLLOWER = 5;
+    /** Port of the Front-Left Drivetrain motor. */
+    public static final int LEFT_LEADER = 11;
+
+    /** Port of the Front-Right Drivetrain motor. */
+    public static final int RIGHT_LEADER = 13;
+
+    /** Port of the Rear-Left Drivetrain motor. */
+    public static final int LEFT_FOLLOWER = 18;
+
+    /** Port of the Rear-Right Drivetrain motor. */
+    public static final int RIGHT_FOLLOWER = 25;
     public static final int GYRO_CHANNEL = 1;
     // etc
   }

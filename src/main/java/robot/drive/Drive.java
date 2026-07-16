@@ -12,6 +12,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -89,20 +90,24 @@ public class Drive extends SubsystemBase {
   public void drive(double leftSpeed, double rightSpeed) {
     final double realLeftSpeed = leftSpeed * DriveConstants.MAX_SPEED;
     final double realRightSpeed = rightSpeed * DriveConstants.MAX_SPEED;
+    DogLog.log("leftSpeed", realLeftSpeed);
+    DogLog.log("rightSpeed", realRightSpeed);
+    DogLog.log("real left speed", leftEncoder.getVelocity()/60);
+    DogLog.log("real right speed", rightEncoder.getVelocity()/60);
     
     final double leftFeedforward = feedforward.calculate(realLeftSpeed);
     final double rightFeedforward = feedforward.calculate(realRightSpeed);
 
-    final double leftPID = leftPIDController.calculate(leftEncoder.getVelocity(), realLeftSpeed);
+    final double leftPID = leftPIDController.calculate(leftEncoder.getVelocity()/60, realLeftSpeed);
     final double rightPID =
-        rightPIDController.calculate(rightEncoder.getVelocity(), realRightSpeed);
+        rightPIDController.calculate(rightEncoder.getVelocity()/60, realRightSpeed);
     double leftVoltage = leftPID + leftFeedforward;
     double rightVoltage = rightPID + rightFeedforward;
     DogLog.log("leftVoltage", leftVoltage);
     DogLog.log("rightVoltage", rightVoltage);
     driveSim.setInputs(leftVoltage, rightVoltage);
-    leftLeader.setVoltage(leftVoltage);
-    rightLeader.setVoltage(rightVoltage);
+    leftLeader.setVoltage(MathUtil.clamp(leftVoltage, -DriveConstants.MAX_VOLTAGE, DriveConstants.MAX_VOLTAGE));
+    rightLeader.setVoltage(MathUtil.clamp(rightVoltage, -DriveConstants.MAX_VOLTAGE, DriveConstants.MAX_VOLTAGE));
   }
 
   private void updateOdometry(Rotation2d rotation) {
@@ -120,8 +125,6 @@ public class Drive extends SubsystemBase {
   }
 
   public Command drive(DoubleSupplier vLeft, DoubleSupplier vRight) {
-    DogLog.log("leftSpeed", vLeft.getAsDouble());
-    DogLog.log("rightSpeed", vRight.getAsDouble());
     return run(() -> drive(vLeft.getAsDouble(), vRight.getAsDouble()));
   }
 
